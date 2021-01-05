@@ -30,7 +30,8 @@ const Index = () => {
         size='large'
         primary
         onClick={handleEnter}>
-            Enter</Button>
+            Enter
+        </Button>
       </header>
     </div>
   );
