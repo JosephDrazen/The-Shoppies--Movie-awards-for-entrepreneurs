@@ -5,7 +5,7 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import {Icon, Autocomplete, Button, Card} from '@shopify/polaris';
+import {Icon, Autocomplete, Button, Avatar, TextStyle, Card, ResourceItem, ResourceList} from '@shopify/polaris';
 import {SearchMinor} from '@shopify/polaris-icons';
 import "@shopify/polaris/dist/styles.css";
 import '../App.css';
@@ -21,27 +21,23 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-/*
-    function: Main
-    purpose: renders content for the main app page
-*/
 export default function Main() {
     const classes = useStyles();
     const API_KEY = "http://www.omdbapi.com/?i=tt3896198&apikey=47eacc18";
     const [textFieldValue, setTextFieldValue] = useState('');
     const [results, setResults] = useState();
+    const [searchTerm, setSearchTerm] = useState('N/A');
 
     const handleSearch = () => {
-        fetchResults().then(res => setResults(res))
-        console.log(results)
+        setSearchTerm(textFieldValue);
+        fetchResults()
+        .then(res => setResults(res['Search'], console.log(results)))
     }
 
     const handleTextFieldChange = useCallback(
         (value) => setTextFieldValue(value),
         [],
       );
-
-
 
     const handleClearButtonClick = useCallback(() => setTextFieldValue(''), []);
 
@@ -57,11 +53,10 @@ export default function Main() {
             <Button
             size='large'
             primary
-            onClick={(e) => handleSearch(e)}>
+            onClick={() => handleSearch()}>
                 Search
             </Button>
         )
-
     }
 
     const textField = (
@@ -75,6 +70,48 @@ export default function Main() {
         onClearButtonClick={handleClearButtonClick}
         />
     );
+
+    const list = () => {
+
+        if(searchTerm === 'N/A') {
+            return (
+                <p> Search something to see movies here </p>
+            )           
+        }
+
+        if(results) {
+
+            return (
+                results.map(data => (
+                    <div
+                    style={{listStyle: 'none'}}>
+                    <ResourceItem>
+                        <Grid container>
+                        <Grid item xs={2}>
+                        <img width='50'
+                        style={{display: 'inline-block',
+                        boxShadow: '0px 0px 2px #888'}}
+                        src={data.Poster}></img>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <h3>
+                            <TextStyle variation="strong">{data.Title} ({data.Year})</TextStyle>
+                        </h3>
+                        </Grid>
+                        </Grid>
+                    </ResourceItem>
+
+                    </div>
+                    
+                ))
+            )
+        } else {
+            return (
+                <p> No Results Found </p>
+            )
+        }
+
+    }
 
     const breadcrumb = (
         <div  style={{margin: '2%'}}>
@@ -107,7 +144,11 @@ export default function Main() {
                     <Grid 
                     className={classes.container}
                     item xs={6}>
-                        <Card sectioned>Results for</Card>
+                        <Card sectioned>
+                            <b>Results for {searchTerm}</b>
+                            <br />
+                            {list()}
+                        </Card>
 
                     </Grid>
                     <Grid 

@@ -26,12 +26,19 @@ const Index = () => {
         style={{margin: 20}}>
           Welcome to the Shoppies!
         </h1>
+        <p style={{
+        fontSize: '14px',
+        marginTop: 10}}>
+            A simple movie database app made with React and Shopify Polaris.
+        </p>
+        <br />
         <Button
         size='large'
         primary
         onClick={handleEnter}>
             Enter
         </Button>
+
       </header>
     </div>
   );
