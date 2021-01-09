@@ -25,35 +25,33 @@ export default function Main() {
     const classes = useStyles();
     const API_KEY = "http://www.omdbapi.com/?i=tt3896198&apikey=47eacc18";
     const [textFieldValue, setTextFieldValue] = useState('');
-    const [results, setResults] = useState('');
+    const [results, setResults] = useState([]);
     const [nominations, setNominations] = useState([]);
     const [searchTerm, setSearchTerm] = useState('N/A');
 
-    const fetchResults = useCallback(async() => {
+    const fetchResults = async() => {
         let url = API_KEY + `&s=${textFieldValue}`;
         const response = await fetch(url);
         const body = await response.json();
         return body;
-    }, [textFieldValue])
+    }
 
-
-    const handleSearch = useCallback(() => {
+    const handleSearch = () => {
+        handleClearButtonClick();
         setSearchTerm(textFieldValue);
         fetchResults()
-        .then(res => setResults(res['Search'],
-        console.log(results)
-        ))
-    }, [fetchResults, results, setSearchTerm, textFieldValue])
+        .then(res => setResults(res['Search']))
+    }
 
-    const handleTextFieldChange = useCallback(
-        (value) => setTextFieldValue(value),
-        [],
-      );
+    const handleTextFieldChange = (value) => {
+        setTextFieldValue(value)
+    }
 
-    const handleClearButtonClick = useCallback(() => 
-    setTextFieldValue(''), 
-    setResults[''],
-    []);
+    const handleClearButtonClick = () =>  {
+        setTextFieldValue('')
+        setSearchTerm('N/A')
+        setResults([])
+    }
 
     const searchBtn = () => {
         return (
@@ -67,25 +65,62 @@ export default function Main() {
     }
 
     const handleNominate = (movie) => {
-        console.log(movie)
-        if(nominations.length < 5 && !nominations.includes(movie)) {
-            let data = nominations;
-            data.push([movie])
-            setNominations(data)
+        if(nominations.length === 0) {
+            nominations.push([movie])
         }
-        else {
-            console.log("FOO")
+        else if(nominations.length < 5) {
+            for(let i = 0; i < nominations.length; i++) {
+                if(movie.imdbID !== nominations[i][0].imdbID) {
+                    nominations.push([movie])
+                }
+            }
         }
     }
 
     const handleRemove = (movie) => {
-        let data = nominations;
-        for(let i = 0; i < data.length; i++) {
-            if(movie[0].imdbID === data[i][0].imdbID)
-            data.pop(data[i][0]);
-            setNominations(data)
-
+        console.log(movie)
+        for(let i = 0; i < nominations.length; i++) {
+            if(movie[0].imdbID === nominations[i][0].imdbID) {
+                nominations.splice(nominations[i][0], 1);
+            }
         }
+    }
+
+    const breadcrumb = (
+        <div  style={{margin: '2%'}}>
+            <Breadcrumbs style = {{fontSize: 16}} aria-label="breadcrumb">
+            <Link color="inherit" href="/">
+                The Shoppies
+            </Link>
+            <Typography style={{fontSize: 16}} color="textPrimary">Home</Typography>
+            </Breadcrumbs>
+        </div>
+    );
+
+    const nominationList = () => {
+        return ( nominations.map(data => (
+            <div
+            style={{listStyle: 'none'}}>
+            <ResourceItem id={data[0].imdbID}>
+                <Grid container>
+                    <Grid item xs={2}>
+                    <img alt={data[0].Title} width='50'
+                    style={{display: 'inline-block',
+                    boxShadow: '0px 0px 2px #888'}}
+                    src={data[0].Poster}></img>
+                    </Grid>
+                    <Grid item xs={6}>
+                    <h3>
+                        <TextStyle variation="strong">{data[0].Title} ({data[0].Year})</TextStyle>
+                    </h3>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button id={data[0].imdbID} onClick={() => handleRemove(data)}>Remove</Button>
+                    </Grid>
+                </Grid>
+            </ResourceItem>
+            </div>
+        )))   
     }
 
     const textField = (
@@ -100,10 +135,6 @@ export default function Main() {
         />
     );
 
-    // useEffect(() => {
-    //     fetchResults();
-    // }, [results, fetchResults])
-
     const list = () => {
 
         if(searchTerm === 'N/A') {
@@ -112,7 +143,7 @@ export default function Main() {
             )           
         }
 
-        else if(results) {
+        if(results) {
 
             return (
                 results.map(data => (
@@ -149,17 +180,6 @@ export default function Main() {
         }
     }
 
-    const breadcrumb = (
-        <div  style={{margin: '2%'}}>
-            <Breadcrumbs style = {{fontSize: 16}} aria-label="breadcrumb">
-            <Link color="inherit" href="/">
-                The Shoppies
-            </Link>
-            <Typography style={{fontSize: 16}} color="textPrimary">Home</Typography>
-            </Breadcrumbs>
-        </div>
-    );
-
     return (
         <React.Fragment>
             {breadcrumb}
@@ -191,29 +211,7 @@ export default function Main() {
                     className={classes.container}
                     item xs={6}>
                         <Card sectioned>Current Nominations
-                        {nominations.map(data => (
-                            <div
-                            style={{listStyle: 'none'}}>
-                            <ResourceItem>
-                                <Grid container>
-                                    <Grid item xs={2}>
-                                    <img alt={data[0].Title} width='50'
-                                    style={{display: 'inline-block',
-                                    boxShadow: '0px 0px 2px #888'}}
-                                    src={data[0].Poster}></img>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                    <h3>
-                                        <TextStyle variation="strong">{data[0].Title} ({data[0].Year})</TextStyle>
-                                    </h3>
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <Button id={data[0].imdbID} onClick={() => handleRemove(data)}>Remove</Button>
-                                    </Grid>
-                                </Grid>
-                            </ResourceItem>
-                            </div>
-                        ))}
+                            {nominationList()}
                         </Card>
                     </Grid>
                 </Grid>
