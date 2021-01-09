@@ -50,9 +50,10 @@ export default function Main() {
         [],
       );
 
-    const handleClearButtonClick = useCallback(() => setTextFieldValue(''), []);
-
-
+    const handleClearButtonClick = useCallback(() => 
+    setTextFieldValue(''), 
+    setResults[''],
+    []);
 
     const searchBtn = () => {
         return (
@@ -66,15 +67,24 @@ export default function Main() {
     }
 
     const handleNominate = (movie) => {
+        console.log(movie)
         if(nominations.length < 5 && !nominations.includes(movie)) {
             let data = nominations;
             data.push([movie])
             setNominations(data)
-            console.log(movie)
-            console.log(nominations)
         }
         else {
             console.log("FOO")
+        }
+    }
+
+    const handleRemove = (movie) => {
+        let data = nominations;
+        for(let i = 0; i < data.length; i++) {
+            if(movie[0].imdbID === data[i][0].imdbID)
+            data.pop(data[i][0]);
+            setNominations(data)
+
         }
     }
 
@@ -90,9 +100,9 @@ export default function Main() {
         />
     );
 
-    useEffect(() => {
-        fetchResults();
-    }, [results, fetchResults])
+    // useEffect(() => {
+    //     fetchResults();
+    // }, [results, fetchResults])
 
     const list = () => {
 
@@ -122,7 +132,7 @@ export default function Main() {
                             </h3>
                             </Grid>
                             <Grid item xs={4}>
-                                <Button id={data.imdbID} onClick={(e) => handleNominate(e)}>Nominate</Button>
+                                <Button id={data.imdbID} onClick={() => handleNominate(data)}>Nominate</Button>
                             </Grid>
                         </Grid>
                     </ResourceItem>
@@ -181,10 +191,30 @@ export default function Main() {
                     className={classes.container}
                     item xs={6}>
                         <Card sectioned>Current Nominations
-                        </Card>
                         {nominations.map(data => (
-                            <p>{nominations}</p>
+                            <div
+                            style={{listStyle: 'none'}}>
+                            <ResourceItem>
+                                <Grid container>
+                                    <Grid item xs={2}>
+                                    <img alt={data[0].Title} width='50'
+                                    style={{display: 'inline-block',
+                                    boxShadow: '0px 0px 2px #888'}}
+                                    src={data[0].Poster}></img>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                    <h3>
+                                        <TextStyle variation="strong">{data[0].Title} ({data[0].Year})</TextStyle>
+                                    </h3>
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <Button id={data[0].imdbID} onClick={() => handleRemove(data)}>Remove</Button>
+                                    </Grid>
+                                </Grid>
+                            </ResourceItem>
+                            </div>
                         ))}
+                        </Card>
                     </Grid>
                 </Grid>
             </Container>
