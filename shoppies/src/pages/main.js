@@ -1,6 +1,8 @@
 import React, {useCallback, useState, useEffect} from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import { TextField } from '@material-ui/core';
+
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import Container from '@material-ui/core/Container';
@@ -10,6 +12,7 @@ import {SearchMinor} from '@shopify/polaris-icons';
 import "@shopify/polaris/dist/styles.css";
 import '../App.css';
 
+const MAX_NOMINATIONS = 5;
 const useStyles = makeStyles((theme) => ({
     root: {
       flexGrow: 1,
@@ -65,15 +68,27 @@ export default function Main() {
     }
 
     const handleNominate = (movie) => {
-        if(nominations.length === 0) {
-            nominations.push([movie])
+
+        let data = nominations;
+        if(data.length === 0) {
+            data.push([movie])
+            alert('nominated')
+            setNominations(data);
         }
-        else if(nominations.length < 5) {
-            for(let i = 0; i < nominations.length; i++) {
-                if(movie.imdbID !== nominations[i][0].imdbID) {
-                    nominations.push([movie])
+        else if(data.length < MAX_NOMINATIONS) {
+            let flag = false;
+            for(let i = 0; i < data.length; i++) {
+                if(movie.imdbID === data[i][0].imdbID) {
+                    flag = true;
                 }
             }
+            if(flag === false) {
+                data.push([movie])
+                alert('nominated')
+                setNominations(data);
+            }
+        } else {
+            console.log("FOO")
         }
     }
 
@@ -81,6 +96,7 @@ export default function Main() {
         console.log(movie)
         for(let i = 0; i < nominations.length; i++) {
             if(movie[0].imdbID === nominations[i][0].imdbID) {
+                console.log(nominations[i][0])
                 nominations.splice(nominations[i][0], 1);
             }
         }
@@ -98,6 +114,7 @@ export default function Main() {
     );
 
     const nominationList = () => {
+        console.log(nominations)
         return ( nominations.map(data => (
             <div
             style={{listStyle: 'none'}}>
@@ -123,19 +140,19 @@ export default function Main() {
         )))   
     }
 
-    const textField = (
-        <Autocomplete.TextField
-        label='Movie Search'
-        prefix={<Icon source={SearchMinor} color="inkLighter" />}
-        placeholder="Search"
-        clearButton
-        value={textFieldValue}
-        onChange={handleTextFieldChange}
-        onClearButtonClick={handleClearButtonClick}
-        />
-    );
+    // const textField = (
+  
+    // );
 
-    const list = () => {
+    const textField = (
+        <TextField 
+        onChange={(e) => setTextFieldValue(e.target.value)}
+            value={textFieldValue}
+        placeholder="Search"
+        /> 
+    )
+
+    const list = useCallback(() => {
 
         if(searchTerm === 'N/A') {
             return (
@@ -178,7 +195,7 @@ export default function Main() {
                 <p> No Results Found </p>
             )
         }
-    }
+    }, [results])
 
     return (
         <React.Fragment>
@@ -192,7 +209,15 @@ export default function Main() {
                 <Grid container spacing={3} style={{marginTop: '2%'}}>
                     <Grid className={classes.container} item xs={12}>
                     <Card sectioned>
-                        {textField}
+                        <Autocomplete.TextField
+                            label='Movie Search'
+                            prefix={<Icon source={SearchMinor} color="inkLighter" />}
+                            placeholder="Search"
+                            clearButton
+                            value={textFieldValue}
+                            onChange={handleTextFieldChange}
+                            onClearButtonClick={handleClearButtonClick}
+                            />
                         <br />
                         {searchBtn()}
                     </Card>
