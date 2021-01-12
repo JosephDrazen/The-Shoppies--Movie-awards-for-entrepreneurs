@@ -140,10 +140,6 @@ export default function Main() {
         )))   
     }
 
-    // const textField = (
-  
-    // );
-
     const textField = (
         <TextField 
         onChange={(e) => setTextFieldValue(e.target.value)}
