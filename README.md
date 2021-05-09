@@ -19,8 +19,9 @@ The main UI is done. However, some work needs to be done on the backend to ensur
 ## Known Issues (being worked on) 
 
 - [x] === fixed
-
 - [ ] === ongoing 
+
+------------------------------------------
 
 - [ ] Some bugs related to mobile view
 
