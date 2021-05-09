@@ -8,15 +8,19 @@ This repo contains my submission to the Shopify Coding Challenge. Using a modern
 ## Tech Stack 
 
 - Material UI 
-- Shopify Polaris 
+- Shopify Polaris (woohoo!) 
 - React
 
 ## Progress
 
-The main UI is done. However, some work needs to be done on the backend to ensure adding to movie lists are fluid and without issue. 
+The main UI is done. However, some work needs to be done on the backend to ensure things are running smooth for the user :) 
 
 
 ## Known Issues (being worked on) 
 
-- Some bugs related to mobile view
-- Bugs when adding and removing movies to and from nomination lists 
+[x] === fixed
+[ ] === ongoing 
+
+[ ] Some bugs related to mobile view
+[ ] Missing feature when disabling buttons press
+[x] Bugs when adding and removing movies to and from nomination lists 
