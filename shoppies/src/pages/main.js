@@ -1,13 +1,12 @@
 import React, {useCallback, useState, useEffect} from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import { TextField } from '@material-ui/core';
-
+import { TextField } from '@shopify/polaris';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import {Icon, Autocomplete, Button, TextStyle, Card, ResourceItem} from '@shopify/polaris';
+import {Icon, Stack, ButtonGroup, Autocomplete, Button, TextStyle, Card, ResourceItem} from '@shopify/polaris';
 import {SearchMinor} from '@shopify/polaris-icons';
 import "@shopify/polaris/dist/styles.css";
 import '../App.css';
@@ -27,11 +26,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Main() {
     const classes = useStyles();
     const API_KEY = "http://www.omdbapi.com/?i=tt3896198&apikey=47eacc18";
-    const [textFieldValue, setTextFieldValue] = useState('');
-    const [results, setResults] = useState([]);
-    const [nominations, setNominations] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('N/A');
+    const [textFieldValue, setTextFieldValue] = useState('N/A'); //text search string
+    const [results, setResults] = useState([]); //array of movie objects
+    const [nominations, setNominations] = useState([]); //array of movie objects
+    const [searchTerm, setSearchTerm] = useState('N/A'); //search term string
 
+    /*
+        Purpose: gets results from API based on user input 
+    */
     const fetchResults = async() => {
         let url = API_KEY + `&s=${textFieldValue}`;
         const response = await fetch(url);
@@ -39,6 +41,9 @@ export default function Main() {
         return body;
     }
 
+    /*
+        Purpose: sets the search term(s) and provides it to the API 
+    */
     const handleSearch = () => {
         handleClearButtonClick();
         setSearchTerm(textFieldValue);
@@ -68,12 +73,15 @@ export default function Main() {
     }
 
     const handleNominate = (movie) => {
-
         let data = nominations;
         if(data.length === 0) {
-            data.push([movie])
-            alert('nominated')
-            setNominations(data);
+            nominations.push([movie]);
+            if(nominations.length % 2 === 0) {
+                setTextFieldValue(" ");
+            } else {
+                setTextFieldValue("  ");
+            }
+            return;
         }
         else if(data.length < MAX_NOMINATIONS) {
             let flag = false;
@@ -83,21 +91,47 @@ export default function Main() {
                 }
             }
             if(flag === false) {
-                data.push([movie])
-                alert('nominated')
-                setNominations(data);
+                nominations.push([movie]);
+                if(nominations.length % 2 === 0) {
+                    setTextFieldValue(" ");
+                } else {
+                    setTextFieldValue("  ");
+                }
+                return;
             }
-        } else {
-            console.log("FOO")
-        }
+        } 
+    }
+
+    const banner = () => {
+        return (
+            <Card title="Completed submission of 5 nominations.">
+            <Card.Section>
+                <Stack spacing="loose" vertical>
+                <p>
+                    You have succesfully added 5 nominees to the list. If you would like to
+                    change them please remove a movie from the list and add a new one.
+                </p>
+                <br />
+                <p>Otherwise,
+                    hit submit and we will direct you to the home page. Thanks!</p>
+                <Stack distribution="trailing">
+                    <Link href="/" plain>Submit</Link>
+                </Stack>
+                </Stack>
+            </Card.Section>
+            </Card>  
+        )
     }
 
     const handleRemove = (movie) => {
-        console.log(movie)
         for(let i = 0; i < nominations.length; i++) {
             if(movie[0].imdbID === nominations[i][0].imdbID) {
-                console.log(nominations[i][0])
                 nominations.splice(nominations[i][0], 1);
+                if(nominations.length % 2 === 0) {
+                    setTextFieldValue("   ");
+                } else {
+                    setTextFieldValue("    ");
+                }
             }
         }
     }
@@ -113,8 +147,7 @@ export default function Main() {
         </div>
     );
 
-    const nominationList = () => {
-        console.log(nominations)
+    const nominationList = useCallback(() => {
         return ( nominations.map(data => (
             <div
             style={{listStyle: 'none'}}>
@@ -132,16 +165,24 @@ export default function Main() {
                     </h3>
                     </Grid>
                     <Grid item xs={4}>
-                        <Button id={data[0].imdbID} onClick={() => handleRemove(data)}>Remove</Button>
+                        <Button id={data[0].imdbID} 
+                        onClick={() => handleRemove(data)}>Remove</Button>
                     </Grid>
                 </Grid>
             </ResourceItem>
             </div>
         )))   
+    }, [nominations]);
+
+    const containsMovie = (movie) => {   
+        //need to fix this    
+        return nominations.imdbID === movie.imdbID ? false : true;
+    
     }
 
     const textField = (
         <TextField 
+        //onClick={setTextFieldValue("")}
         onChange={(e) => setTextFieldValue(e.target.value)}
             value={textFieldValue}
         placeholder="Search"
@@ -157,7 +198,6 @@ export default function Main() {
         }
 
         if(results) {
-
             return (
                 results.map(data => (
                     <div
@@ -176,7 +216,9 @@ export default function Main() {
                             </h3>
                             </Grid>
                             <Grid item xs={4}>
-                                <Button id={data.imdbID} onClick={() => handleNominate(data)}>Nominate</Button>
+                                <Button id={data.imdbID} 
+                                //disabled={containsMovie(data)}
+                                onClick={() => handleNominate(data)}>Nominate</Button>
                             </Grid>
                         </Grid>
                     </ResourceItem>
@@ -193,10 +235,13 @@ export default function Main() {
         }
     }, [results])
 
-    return (
-        <React.Fragment>
+    if(nominations.length === 5) {
+        return (
+         
+            <React.Fragment>
             {breadcrumb}
             <Container>
+            {banner()}
                 <Typography
                 variant="h2"
                 style={{textAlign: 'left', marginTop: '10%'}}>
@@ -205,8 +250,10 @@ export default function Main() {
                 <Grid container spacing={3} style={{marginTop: '2%'}}>
                     <Grid className={classes.container} item xs={12}>
                     <Card sectioned>
-                        <Autocomplete.TextField
+                        <form noValidate autoComplete="off">
+                        <TextField
                             label='Movie Search'
+                            id = "outlined-basic"
                             prefix={<Icon source={SearchMinor} color="inkLighter" />}
                             placeholder="Search"
                             clearButton
@@ -214,6 +261,7 @@ export default function Main() {
                             onChange={handleTextFieldChange}
                             onClearButtonClick={handleClearButtonClick}
                             />
+                        </form>
                         <br />
                         {searchBtn()}
                     </Card>
@@ -226,7 +274,56 @@ export default function Main() {
                             <br />
                             {list()}
                         </Card>
-
+                    </Grid>
+                    <Grid 
+                    className={classes.container}
+                    item xs={6}>
+                        <Card sectioned>Current Nominations
+                            {nominationList()}
+                        </Card>
+                    </Grid>
+                </Grid>
+            </Container>
+        </React.Fragment>
+        )
+    } else {
+    
+    return (
+        <React.Fragment>
+            {breadcrumb}
+            <Container>
+                <Typography
+                variant="h2"
+                style={{textAlign: 'left', marginTop: '10%'}}>
+                    The Shoppies
+                </Typography>
+                <Grid container spacing={3} style={{marginTop: '2%'}}>
+                    <Grid className={classes.container} item xs={12}>
+                    <Card sectioned>
+                        <form noValidate autoComplete="off">
+                        <TextField
+                            label='Movie Search'
+                            id = "outlined-basic"
+                            prefix={<Icon source={SearchMinor} color="inkLighter" />}
+                            placeholder="Search"
+                            clearButton
+                            value={textFieldValue}
+                            onChange={handleTextFieldChange}
+                            onClearButtonClick={handleClearButtonClick}
+                            />
+                        </form>
+                        <br />
+                        {searchBtn()}
+                    </Card>
+                    </Grid>
+                    <Grid 
+                    className={classes.container}
+                    item xs={6}>
+                        <Card sectioned>
+                            <b>Results for {searchTerm}</b>
+                            <br />
+                            {list()}
+                        </Card>
                     </Grid>
                     <Grid 
                     className={classes.container}
@@ -239,6 +336,5 @@ export default function Main() {
             </Container>
         </React.Fragment>
     )
+    }
 }
-
-
