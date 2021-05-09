@@ -18,9 +18,12 @@ The main UI is done. However, some work needs to be done on the backend to ensur
 
 ## Known Issues (being worked on) 
 
-[x] === fixed
-[ ] === ongoing 
+- [x] === fixed
 
-[ ] Some bugs related to mobile view
-[ ] Missing feature when disabling buttons press
-[x] Bugs when adding and removing movies to and from nomination lists 
+- [ ] === ongoing 
+
+- [ ] Some bugs related to mobile view
+
+- [ ] Missing feature when disabling buttons press
+
+- [x] Bugs when adding and removing movies to and from nomination lists 
