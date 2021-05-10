@@ -3,7 +3,7 @@
 
 ## About
 
-This repo contains my submission to the Shopify Coding Challenge. Using a modern framework like React, I achieved a minimalist movie database with an effortless customer experience. 
+This repository contains my submission to the Shopify Coding Challenge. Using a modern framework like React, I achieved a minimalist movie database with an effortless customer experience. I decided to use Shopify Polaris to get familiar with the design system at Shopify and see what third-party app devs use to design apps for the Shopify ecosystem.
 
 #### Built With
 
