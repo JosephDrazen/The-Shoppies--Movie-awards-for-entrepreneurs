@@ -23,7 +23,7 @@ To get this running locally you will need to have the latest npm package manager
 
 1. Clone the repo 
      
-     ```git clone https://github.com/JosephDrazen/The-Shoppies--Movie-awards-for-entrepreneurs```
+     ```git clone https://github.com/JosephDrazen/The-Shoppies```
      
 2. Install npm packages 
      
